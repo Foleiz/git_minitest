@@ -4,20 +4,118 @@
 #include <limits>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <map>
 
 using namespace std;
 
    
-struct Person {
-    int sequence;
-    string firstName;
-    string lastName;
-    string nickname;
-    int age;
+class Student {
+public:
+    string name;
+    string subjects[2];
+    int points[2];
+    double average;
+
+    Student() {
+        subjects[0] = "";
+        subjects[1] = "";
+        points[0] = 0;
+        points[1] = 0;
+        average = 0.0;
+    }
+
+    void calculateAverage() {
+        int totalPoints = 0;
+        for (int i = 0; i < 2; ++i) {
+            totalPoints += points[i];
+        }
+        average = static_cast<double>(totalPoints) / 2;
+    }
 };
+
+void ReadFile(const string& filename, Student students[], int& studentCount) {
+    ifstream Myfile(filename); // อ่านข้อมูลจากไฟล์
+    if (!Myfile) {
+        cout << "ไม่สามารถเปิดไฟล์ได้" << endl;
+        return;
+    }
+
+    string text;
+    studentCount = 0;
+
+    while (getline(Myfile, text)) 
+    {
+        stringstream read(text);
+        string name, subject, num;
+        getline(read, name, ',');
+        getline(read, subject, ',');
+        getline(read, num, ',');
+        int point = stoi(num);
+
+        bool found = false;
+        for (int i = 0; i < studentCount; ++i) {
+            if (students[i].name == name) {
+                if (students[i].subjects[0].empty()) {
+                    students[i].subjects[0] = subject;
+                    students[i].points[0] = point;
+                } else {
+                    students[i].subjects[1] = subject;
+                    students[i].points[1] = point;
+                }
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            students[studentCount].name = name;
+            students[studentCount].subjects[0] = subject;
+            students[studentCount].points[0] = point;
+            ++studentCount;
+        }
+    }
+
+    for (int i = 0; i < studentCount; ++i) {
+        students[i].calculateAverage();
+    }
+
+    Myfile.close();
+}
+
+void displayStudents(const Student students[], int studentCount) {
+    for (int i = 0; i < studentCount; ++i) {
+        cout << students[i].name << endl;
+        for (int j = 0; j < 2; ++j) {
+            if (!students[i].subjects[j].empty()) {
+                cout << "  " << students[i].subjects[j] << ": " << students[i].points[j] << endl;
+            }
+        }
+        cout << "  Average: " << students[i].average << endl;
+        cout << endl;
+    }
+}
+
+
+
+
  
 int main()
 {
+    const int MAX_STUDENTS = 100;
+    Student students[MAX_STUDENTS];
+    int studentCount;
+
+    string enter;
+    cout << "Input OK: ";
+    cin >> enter;
+    if (enter == "OK") {
+        ReadFile("grades.txt", students, studentCount);
+        displayStudents(students, studentCount);
+    }
+
+    return 0;
+    
 //     ifstream Myfile ("numbers.txt");
 //     if(!Myfile){
 //         cout<<"ไม่สามรถเปิดไฟล์ได้";
@@ -60,39 +158,39 @@ int main()
 //     cout << "ผลรวมของตัวเลขในไฟล์คือ: " << sum << endl;
 
 
-    ifstream inFile("text.txt");
-    if (!inFile) {
-        cerr << "ไม่สามารถเปิดไฟล์ได้" << endl;
-        return 1;
-    }
+    // ifstream inFile("text.txt");
+    // if (!inFile) {
+    //     cerr << "ไม่สามารถเปิดไฟล์ได้" << endl;
+    //     return 1;
+    // }
 
-    string lines_2;
-    while (getline(inFile, lines_2)) {
-        stringstream ss(lines_2);
-        string item;
+    // string lines_2;
+    // while (getline(inFile, lines_2)) {
+    //     stringstream ss(lines_2);
+    //     string item;
 
-        Person person;
-        getline(ss, item, ',');  // อ่านลำดับ
-        person.sequence = stoi(item);
+    //     Person person;
+    //     getline(ss, item, ',');  // อ่านลำดับ
+    //     person.sequence = stoi(item);
 
-        getline(ss, person.firstName, ',');  // อ่านชื่อ
-        getline(ss, person.lastName, ',');   // อ่านนามสกุล
-        getline(ss, person.nickname, ',');   // อ่านชื่อเล่น
+    //     getline(ss, person.firstName, ',');  // อ่านชื่อ
+    //     getline(ss, person.lastName, ',');   // อ่านนามสกุล
+    //     getline(ss, person.nickname, ',');   // อ่านชื่อเล่น
 
-        getline(ss, item);  // อ่านอายุ (ไม่ต้องใช้ ',' เพราะเป็นตัวสุดท้ายในบรรทัด)
-        person.age = stoi(item);
+    //     getline(ss, item);  // อ่านอายุ (ไม่ต้องใช้ ',' เพราะเป็นตัวสุดท้ายในบรรทัด)
+    //     person.age = stoi(item);
 
-        // แสดงข้อมูล
-        cout << "ลำดับ: " << person.sequence << endl;
-        cout << "ชื่อ: " << person.firstName << endl;
-        cout << "นามสกุล: " << person.lastName << endl;
-        cout << "ชื่อเล่น: " << person.nickname << endl;
-        cout << "อายุ: " << person.age << endl;
-        cout << endl;
-    }
+    //     // แสดงข้อมูล
+    //     cout << "ลำดับ: " << person.sequence << endl;
+    //     cout << "ชื่อ: " << person.firstName << endl;
+    //     cout << "นามสกุล: " << person.lastName << endl;
+    //     cout << "ชื่อเล่น: " << person.nickname << endl;
+    //     cout << "อายุ: " << person.age << endl;
+    //     cout << endl;
+    // }
 
-    inFile.close();
-    return 0;
+    // inFile.close();
+    // return 0;
     
    
     //    int count;
